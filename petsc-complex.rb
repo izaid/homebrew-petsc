@@ -1,4 +1,4 @@
-class Petsc < Formula
+class PetscComplex < Formula
   desc "Portable, Extensible Toolkit for Scientific Computation"
   homepage "https://www.mcs.anl.gov/petsc/"
   url "http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.9.3.tar.gz"
@@ -17,6 +17,8 @@ class Petsc < Formula
   depends_on "open-mpi"
   depends_on "scalapack"
   depends_on "suite-sparse"
+  conflicts_with "petsc", :because => "petsc must be installed with either real or complex support"
+
 
   def install
     ENV["CC"] = "mpicc"
@@ -24,9 +26,8 @@ class Petsc < Formula
     ENV["F77"] = "mpif77"
     ENV["FC"] = "mpif90"
 
-    prefix_complex = prefix.sub("petsc", "petsc_complex")
     args = %W[
-      --prefix=#{prefix_complex}
+      --prefix=#{prefix}
       --with-debugging=0
       --with-x=0
     ]
@@ -36,7 +37,7 @@ class Petsc < Formula
   end
 
   test do
-    test_case = "#{pkgshare}/examples/ksp/ksp/examples/tutorials/ex1.c"
+    test_case = "#{share}/petsc/examples/ksp/ksp/examples/tutorials/ex1.c"
     system "mpicc", test_case, "-I#{include}", "-L#{lib}", "-lpetsc", "-o", "test"
     output = shell_output("./test")
     # This PETSc example prints several lines of output. The last line contains
